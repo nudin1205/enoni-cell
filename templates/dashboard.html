@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Enoni Cell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { font-size: 18px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: #0a0a1a;
+      color: #fff;
+    }
+
+    /* ── BACKGROUND ── */
+    .bg-wrapper {
+      position: fixed; inset: 0; z-index: 0;
+    }
+    .bg-wrapper img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: 0.6;
+    }
+    .bg-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(5,5,20,0.85) 0%, rgba(10,10,40,0.75) 50%, rgba(20,5,30,0.85) 100%);
+    }
+    .blob { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.15; z-index:1; pointer-events:none; }
+    .blob-1 { width:400px; height:400px; background:#7c3aed; top:-100px; left:-100px; }
+    .blob-2 { width:350px; height:350px; background:#f59e0b; bottom:-80px; right:-80px; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-brand { display:flex; align-items:center; gap:0.6rem; }
+    .nav-icon { font-size:1.5rem; }
+    .nav-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#fff; }
+    .nav-sub { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-left:0.4rem; text-transform:uppercase; letter-spacing:1px; }
+    .nav-links { display:flex; gap:0.5rem; }
+    .nav-link {
+      padding: 0.45rem 1rem; border-radius: 8px;
+      color: rgba(255,255,255,0.7); text-decoration:none;
+      font-size:0.85rem; font-weight:500;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .nav-link.active { background:rgba(245,158,11,0.2); color:#f59e0b; }
+    .nav-link.btn-logout {
+      background: rgba(239,68,68,0.15); color:#fca5a5;
+      border:1px solid rgba(239,68,68,0.3);
+    }
+    .nav-link.btn-logout:hover { background: rgba(239,68,68,0.3); }
+
+    /* ── MAIN CONTENT ── */
+    .dashboard-container {
+      position: relative; z-index: 5;
+      max-width: 1200px; margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .db-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .card-header {
+      display:flex; align-items:center; gap:0.8rem;
+      margin-bottom:1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .card-header h2 { font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; }
+    .card-icon { font-size:1.5rem; }
+
+    /* ── TABLE ── */
+    .table-responsive { overflow-x: auto; }
+    .db-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.9rem; color: rgba(255,255,255,0.8);
+    }
+    .db-table th {
+      text-align: left; padding: 1rem;
+      background: rgba(255,255,255,0.05);
+      font-family: 'Outfit', sans-serif; font-weight: 600;
+      color: #f59e0b; border-bottom: 2px solid rgba(255,255,255,0.1);
+    }
+    .db-table td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .db-table tr:hover { background: rgba(255,255,255,0.03); }
+
+    .status-sukses { color: #86efac; font-weight: 600; }
+    .status-gagal { color: #fca5a5; font-size: 0.8rem; }
+
+    /* ── CHART ── */
+    #predictionChart { max-height: 350px; }
+
+    /* ── FLASH ── */
+    .flash-wrap { position:relative; z-index:5; max-width:1200px; margin:0.5rem auto; padding:0 1.5rem; }
+    .alert { padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem; }
+    .alert-success { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#86efac; }
+    .alert-danger { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; }
+    .alert-info { background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#93c5fd; }
+
+    /* ── FOOTER ── */
+    .footer {
+      position:relative; z-index:5; text-align:center;
+      padding:1.5rem; font-size:0.75rem;
+      color:rgba(255,255,255,0.25);
+      border-top:1px solid rgba(255,255,255,0.07);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── BACKGROUND ──────────────────────────────────── -->
+<div class="bg-wrapper">
+  <img src="{{ url_for('static', filename='img/phone_background.png') }}" alt="bg">
+  <div class="bg-overlay"></div>
+</div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- ── NAVBAR ─────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="nav-icon">📱</span>
+    <span class="nav-title">Enoni Cell</span>
+    <span class="nav-sub">Sistem Estimasi Gadai HP</span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Estimasi</a>
+    {% if session.get('logged_in') %}
+      {% if session.get('role') == 'superadmin' %}
+      <a href="/users" class="nav-link">Kelola Admin</a>
+      {% endif %}
+      <a href="/dataset" class="nav-link">Kelola Dataset</a>
+      <a href="/dashboard" class="nav-link active">Dashboard</a>
+      <a href="/logout" class="nav-link btn-logout">Logout</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ── FLASH ──────────────────────────────────────── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-wrap">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ── MAIN CONTENT ───────────────────────────────── -->
+<div class="dashboard-container">
+  <div class="db-grid">
+    
+    <!-- CHART CARD -->
+    <div class="glass-card">
+      <div class="card-header">
+        <span class="card-icon">📈</span>
+        <h2>Grafik Tren Prediksi Harga</h2>
+      </div>
+      <canvas id="predictionChart"></canvas>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="glass-card">
+      <div class="card-header">
+        <span class="card-icon">🗄️</span>
+        <h2>Riwayat Estimasi (100 Terakhir)</h2>
+      </div>
+      <div class="table-responsive">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Merk</th>
+              <th>Tipe</th>
+              <th>Tahun</th>
+              <th>RAM/Storage</th>
+              <th>Kondisi Fisik</th>
+              <th>Estimasi (Rp)</th>
+              <th>Status</th>
+              <th>Admin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in histories %}
+            <tr>
+              <td style="white-space: nowrap;">{{ h.tanggal.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ h.spesifikasi.merk }}</td>
+              <td>{{ h.spesifikasi.tipe }}</td>
+              <td>{{ h.spesifikasi.tahun }}</td>
+              <td>{{ h.spesifikasi.ram }}GB / {{ h.spesifikasi.storage }}GB</td>
+              <td>{{ h.spesifikasi.kondisi }}</td>
+              <td style="font-weight: 700; color: #f59e0b;">
+                {% if h.estimasi_harga %}
+                  {{ "{:,.0f}".format(h.estimasi_harga).replace(',', '.') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="{{ 'status-sukses' if h.status == 'Sukses' else 'status-gagal' }}">{{ h.status }}</td>
+              <td style="color: #93c5fd;">{{ h.admin.username if h.admin else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.3);">
+                Belum ada riwayat estimasi.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  &copy; 2026 Enoni Cell · Sistem Estimasi Gadai HP · Admin Dashboard
+</footer>
+
+<script>
+  const ctx = document.getElementById('predictionChart').getContext('2d');
+  
+  const labels = {{ graph_labels | tojson }};
+  const dataPrices = {{ graph_prices | tojson }};
+  const dataModels = {{ graph_models | tojson }};
+
+  // Chart configuration with dark theme styles
+  Chart.defaults.color = 'rgba(255, 255, 255, 0.6)';
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  const predictionChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Hasil Estimasi (Rp)',
+              data: dataPrices,
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderColor: '#f59e0b',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor: '#fff',
+              pointHoverRadius: 6,
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  display: false
+              },
+              tooltip: {
+                  backgroundColor: 'rgba(10, 10, 40, 0.9)',
+                  titleColor: '#f59e0b',
+                  bodyColor: '#fff',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  borderWidth: 1,
+                  padding: 12,
+                  displayColors: false,
+                  callbacks: {
+                      title: function(context) {
+                          return dataModels[context[0].dataIndex];
+                      },
+                      label: function(context) {
+                          return 'Estimasi: ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(context.parsed.y);
+                      },
+                      afterLabel: function(context) {
+                          return 'Waktu: ' + context.label;
+                      }
+                  }
+              }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  grid: {
+                      color: 'rgba(255, 255, 255, 0.05)'
+                  },
+                  ticks: {
+                      callback: function(value) {
+                          return 'Rp ' + (value/1000) + 'k';
+                      }
+                  }
+              },
+              x: {
+                  grid: {
+                      display: false
+                  },
+                  ticks: {
+                      maxRotation: 45,
+                      minRotation: 45
+                  }
+              }
+          }
+      }
+  });
+</script>
+
+</body>
+</html>

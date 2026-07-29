@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estimasi Nilai Gadai HP — Enoni Cell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { font-size: 18px; } /* Memperbesar seluruh ukuran font dasar */
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: #0a0a1a;
+      color: #fff;
+    }
+
+    /* ── BACKGROUND ── */
+    .bg-wrapper {
+      position: fixed; inset: 0; z-index: 0;
+    }
+    .bg-wrapper img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: 0.6;
+    }
+    .bg-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(5,5,20,0.82) 0%, rgba(10,10,40,0.70) 50%, rgba(20,5,30,0.82) 100%);
+    }
+    .blob { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.15; z-index:1; pointer-events:none; }
+    .blob-1 { width:400px; height:400px; background:#7c3aed; top:-100px; left:-100px; }
+    .blob-2 { width:350px; height:350px; background:#f59e0b; bottom:-80px; right:-80px; }
+    .blob-3 { width:250px; height:250px; background:#06b6d4; top:40%; left:60%; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-brand { display:flex; align-items:center; gap:0.6rem; }
+    .nav-icon { font-size:1.5rem; }
+    .nav-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#fff; }
+    .nav-sub { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-left:0.4rem; text-transform:uppercase; letter-spacing:1px; }
+    .nav-links { display:flex; gap:0.5rem; }
+    .nav-link {
+      padding: 0.45rem 1rem; border-radius: 8px;
+      color: rgba(255,255,255,0.7); text-decoration:none;
+      font-size:0.85rem; font-weight:500;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .nav-link.active { background:rgba(245,158,11,0.2); color:#f59e0b; }
+    .nav-link.btn-logout {
+      background: rgba(239,68,68,0.15); color:#fca5a5;
+      border:1px solid rgba(239,68,68,0.3);
+    }
+    .nav-link.btn-logout:hover { background: rgba(239,68,68,0.3); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 5;
+      text-align: center; padding: 2.5rem 1rem 1rem;
+    }
+    .hero h1 {
+      font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800;
+      background: linear-gradient(135deg, #fff 0%, #f59e0b 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .hero p { color:rgba(255,255,255,0.55); font-size:0.9rem; }
+    .hero strong { color:#f59e0b; }
+
+    /* ── MAIN LAYOUT ── */
+    .main-container {
+      position: relative; z-index: 5;
+      max-width: 1100px; margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media(max-width:768px) { 
+      .main-container { grid-template-columns:1fr; } 
+      .form-row, .form-row-3 { grid-template-columns:1fr !important; gap:0.5rem; }
+      .kondisi-group { grid-template-columns:1fr !important; }
+    }
+
+    /* ── GLASS CARD ── */
+    .glass-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .card-header {
+      display:flex; align-items:center; gap:0.6rem;
+      margin-bottom:1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .card-header h2 { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:700; color:#fff; }
+    .card-icon { font-size:1.3rem; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom:1.1rem; }
+    .form-group label {
+      display:block; font-size:0.78rem; font-weight:600;
+      color:rgba(255,255,255,0.65); margin-bottom:0.4rem;
+      text-transform:uppercase; letter-spacing:0.8px;
+    }
+    .required { color:#f59e0b; }
+    .form-group select,
+    .form-group input[type="text"] {
+      width:100%; padding:0.8rem 1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #fff; font-size:0.9rem; font-family:'Inter',sans-serif;
+      outline:none; transition: all 0.2s;
+      appearance: none;
+    }
+    .form-group select option { background:#1a1a2e; color:#fff; }
+    .form-group select:focus,
+    .form-group input[type="text"]:focus {
+      border-color: #f59e0b;
+      background: rgba(245,158,11,0.08);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+    .form-group input::placeholder { color:rgba(255,255,255,0.3); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem; }
+
+    /* ── KONDISI ── */
+    .kondisi-group { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+    .kondisi-card {
+      display:block; cursor:pointer; padding:0.9rem;
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius:12px; transition: all 0.2s;
+      text-align:center;
+    }
+    .kondisi-card input { display:none; }
+    .kondisi-card:hover { border-color:rgba(245,158,11,0.4); }
+    .kondisi-card:has(input:checked) {
+      border-color:#f59e0b;
+      background: rgba(245,158,11,0.12);
+    }
+    .kondisi-nilai { display:block; font-size:1.5rem; font-weight:800; color:#f59e0b; }
+    .kondisi-label { display:block; font-size:0.85rem; font-weight:600; color:#fff; margin:0.2rem 0; }
+    .kondisi-desc { display:block; font-size:0.72rem; color:rgba(255,255,255,0.45); }
+
+    /* ── TOGGLE ── */
+    .toggle-group { display:flex; flex-direction:column; gap:0.7rem; }
+    .toggle-item { display:flex; align-items:center; justify-content:space-between; }
+    .toggle-label { font-size:0.88rem; color:rgba(255,255,255,0.75); }
+    .toggle-val { font-size:0.82rem; font-weight:600; color:#f59e0b; min-width:40px; text-align:right; }
+    .switch { position:relative; display:inline-block; width:44px; height:24px; }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider {
+      position:absolute; cursor:pointer; inset:0;
+      background: rgba(255,255,255,0.15); border-radius:24px;
+      transition:0.3s;
+    }
+    .slider:before {
+      content:""; position:absolute; width:18px; height:18px;
+      left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s;
+    }
+    input:checked + .slider { background: linear-gradient(135deg,#f59e0b,#d97706); }
+    input:checked + .slider:before { transform:translateX(20px); }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-estimasi {
+      width:100%; padding:1rem; margin-top:0.5rem;
+      background: linear-gradient(135deg,#f59e0b,#d97706);
+      border:none; border-radius:12px; color:#fff;
+      font-size:1rem; font-weight:700; font-family:'Outfit',sans-serif;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem;
+      transition: all 0.25s;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+    }
+    .btn-estimasi:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(245,158,11,0.55); }
+    .btn-estimasi:active { transform:translateY(0); }
+
+    /* ── HASIL CARD ── */
+    .state-empty { text-align:center; padding:3rem 1rem; }
+    .empty-icon { font-size:3.5rem; margin-bottom:1rem; opacity:0.5; }
+    .empty-text { color:rgba(255,255,255,0.4); font-size:0.9rem; line-height:1.6; }
+
+    .state-loading { text-align:center; padding:3rem 1rem; }
+    .spinner {
+      width:44px; height:44px; border:3px solid rgba(255,255,255,0.1);
+      border-top-color:#f59e0b; border-radius:50%; margin:0 auto 1rem;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .state-error { text-align:center; padding:2rem; }
+    .error-icon { font-size:2.5rem; margin-bottom:0.5rem; }
+    #errorMsg { color:#fca5a5; font-size:0.9rem; }
+
+    .nilai-utama {
+      text-align:center; padding:1.5rem;
+      background: rgba(245,158,11,0.08);
+      border:1px solid rgba(245,158,11,0.2);
+      border-radius:16px; margin-bottom:1.2rem;
+    }
+    .nilai-label { font-size:0.78rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem; }
+    .nilai-angka { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800; color:#f59e0b; }
+    .nilai-badge {
+      display:inline-block; margin-top:0.5rem; padding:0.3rem 1rem;
+      border-radius:20px; font-size:0.78rem; font-weight:600;
+      background: rgba(245,158,11,0.2); color:#fbbf24;
+    }
+
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:1.2rem; }
+    .detail-item {
+      background:rgba(255,255,255,0.05); border-radius:8px; padding:0.6rem 0.8rem;
+    }
+    .detail-key { font-size:0.7rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.5px; }
+    .detail-val { font-size:0.88rem; font-weight:600; color:#fff; margin-top:0.1rem; }
+
+    .catatan {
+      display:flex; gap:0.6rem; align-items:flex-start;
+      background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2);
+      border-radius:10px; padding:0.8rem; margin-bottom:1rem; font-size:0.8rem;
+      color:rgba(255,255,255,0.55);
+    }
+    .catatan strong { color:#93c5fd; }
+
+    .btn-ulang {
+      width:100%; padding:0.8rem;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:10px; color:rgba(255,255,255,0.7);
+      font-size:0.88rem; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-ulang:hover { background:rgba(255,255,255,0.14); color:#fff; }
+
+    /* ── FOOTER ── */
+    .footer {
+      position:relative; z-index:5; text-align:center;
+      padding:1.2rem; font-size:0.75rem;
+      color:rgba(255,255,255,0.25);
+      border-top:1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ── FLASH ── */
+    .flash-wrap { position:relative; z-index:5; max-width:1100px; margin:0.5rem auto; padding:0 1.5rem; }
+    .alert { padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem; }
+    .alert-success { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#86efac; }
+    .alert-danger { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; }
+  </style>
+</head>
+<body>
+
+<!-- ── BACKGROUND ──────────────────────────────────── -->
+<div class="bg-wrapper">
+  <img src="{{ url_for('static', filename='img/phone_background.png') }}" alt="bg">
+  <div class="bg-overlay"></div>
+</div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- ── NAVBAR ─────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="nav-icon">📱</span>
+    <span class="nav-title">Enoni Cell</span>
+    <span class="nav-sub">Sistem Estimasi Gadai HP</span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link active">Estimasi</a>
+    {% if session.get('logged_in') %}
+      {% if session.get('role') == 'superadmin' %}
+      <a href="/users" class="nav-link">Kelola Admin</a>
+      {% endif %}
+      <a href="/dataset" class="nav-link">Kelola Dataset</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/logout" class="nav-link btn-logout">Logout</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ── FLASH ──────────────────────────────────────── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-wrap">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ── HERO ───────────────────────────────────────── -->
+<div class="hero">
+  <h1>Estimasi Nilai Gadai Handphone</h1>
+  <p>Powered by algoritma <strong>Random Forest</strong> — akurasi R² <strong>0.83</strong> dari 338 data transaksi nyata</p>
+</div>
+
+<!-- ── MAIN CONTENT ───────────────────────────────── -->
+<div class="main-container">
+
+  <!-- FORM INPUT -->
+  <div class="glass-card">
+    <div class="card-header">
+      <span class="card-icon">📋</span>
+      <h2>Data Handphone</h2>
+    </div>
+    <form id="formEstimasi">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="merk">Merk HP <span class="required">*</span></label>
+          <select id="merk" name="merk" required>
+            <option value="">-- Pilih Merk --</option>
+            {% for m in merk_list %}
+            <option value="{{ m }}">{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tipe">Tipe / Model <span class="required">*</span></label>
+          <input type="text" id="tipe" name="tipe" placeholder="Contoh: Galaxy A54, dll." required>
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label for="tahun">Tahun Rilis <span class="required">*</span></label>
+          <select id="tahun" name="tahun" required>
+            <option value="">-- Pilih --</option>
+            {% for y in range(tahun_max, tahun_min - 1, -1) %}
+            <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ram">RAM (GB) <span class="required">*</span></label>
+          <select id="ram" name="ram" required>
+            <option value="">-- Pilih --</option>
+            {% for r in ram_list %}
+            <option value="{{ r }}">{{ r }} GB</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="storage">Storage (GB) <span class="required">*</span></label>
+          <select id="storage" name="storage" required>
+            <option value="">-- Pilih --</option>
+            {% for s in storage_list %}
+            <option value="{{ s }}">{{ s }} GB</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Kondisi Fisik <span class="required">*</span></label>
+        <div class="kondisi-group">
+          <label class="kondisi-card" id="card-4">
+            <input type="radio" name="kondisi" value="4" required>
+            <div>
+              <span class="kondisi-nilai">4</span>
+              <span class="kondisi-label">Baret Ringan</span>
+              <span class="kondisi-desc">Ada baret halus</span>
+            </div>
+          </label>
+          <label class="kondisi-card" id="card-5">
+            <input type="radio" name="kondisi" value="5" required>
+            <div>
+              <span class="kondisi-nilai">5</span>
+              <span class="kondisi-label">Mulus</span>
+              <span class="kondisi-desc">Sempurna, tanpa cacat</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Kelengkapan Aksesori</label>
+        <div class="toggle-group">
+          <div class="toggle-item">
+            <span class="toggle-label">Ada Charger?</span>
+            <label class="switch"><input type="checkbox" id="charger" name="charger" value="1"><span class="slider"></span></label>
+            <span class="toggle-val" id="val-charger">Tidak</span>
+          </div>
+          <div class="toggle-item">
+            <span class="toggle-label">Ada Dus / Box?</span>
+            <label class="switch"><input type="checkbox" id="dus" name="dus" value="1"><span class="slider"></span></label>
+            <span class="toggle-val" id="val-dus">Tidak</span>
+          </div>
+          <div class="toggle-item">
+            <span class="toggle-label">Fungsi Normal?</span>
+            <label class="switch"><input type="checkbox" id="fungsi" name="fungsi" value="1" checked><span class="slider"></span></label>
+            <span class="toggle-val" id="val-fungsi">Ya</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-estimasi" id="btnEstimasi">
+        <span>🔍</span>
+        <span class="btn-text">Hitung Estimasi Nilai Gadai</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- HASIL -->
+  <div class="glass-card" id="hasilCard">
+    <div id="stateEmpty" class="state-empty">
+      <div class="empty-icon">📊</div>
+      <p class="empty-text">Isi form di sebelah kiri<br>lalu klik <strong>Hitung Estimasi</strong></p>
+    </div>
+    <div id="stateLoading" class="state-loading" style="display:none">
+      <div class="spinner"></div>
+      <p style="color:rgba(255,255,255,0.5)">Menghitung estimasi...</p>
+    </div>
+    <div id="stateError" class="state-error" style="display:none">
+      <div class="error-icon">⚠️</div>
+      <p id="errorMsg">Terjadi kesalahan.</p>
+    </div>
+    <div id="stateHasil" style="display:none">
+      <div class="card-header">
+        <span class="card-icon">✅</span>
+        <h2>Hasil Estimasi</h2>
+      </div>
+      <div class="nilai-utama" id="nilaiUtama">
+        <div class="nilai-label">Estimasi Nilai Gadai</div>
+        <div class="nilai-angka" id="nilaiAngka">Rp 0</div>
+        <div class="nilai-badge" id="nilaiBadge">Menengah</div>
+      </div>
+      <div class="detail-grid" id="detailGrid"></div>
+      <div class="catatan">
+        <span>ℹ️</span>
+        <p>Nilai ini merupakan <strong>estimasi</strong> berdasarkan model Machine Learning dari 338 data transaksi Enoni Cell. Nilai final ditentukan pegawai.</p>
+      </div>
+      <button class="btn-ulang" onclick="resetForm()">↩ Hitung Ulang</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────── -->
+<footer class="footer">
+  Sistem Estimasi Gadai HP — Enoni Cell &nbsp;|&nbsp; Algoritma: Random Forest (R² = 0.83)
+</footer>
+
+<script>
+  const TIPE_PER_MERK = {{ tipe_per_merk | tojson }};
+  // Toggle label
+  ['charger','dus','fungsi'].forEach(id => {
+    const cb = document.getElementById(id);
+    const val = document.getElementById('val-'+id);
+    cb.addEventListener('change', () => { val.textContent = cb.checked ? 'Ya' : 'Tidak'; });
+  });
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
