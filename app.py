@@ -82,14 +82,17 @@ class DatasetUpdate(db.Model):
     uploader = db.relationship('User', backref=db.backref('dataset_updates', lazy=True))
 
 with app.app_context():
-    db.create_all()
-    # Buat user admin default jika tabel User masih kosong
-    if not User.query.first():
-        hashed_pw = generate_password_hash('admin123')
-        default_admin = User(username='admin', password=hashed_pw, role='superadmin')
-        db.session.add(default_admin)
-        db.session.commit()
-        print("[INFO] Default admin user created: admin / admin123")
+    try:
+        db.create_all()
+        # Buat user admin default jika tabel User masih kosong
+        if not User.query.first():
+            hashed_pw = generate_password_hash('admin123')
+            default_admin = User(username='admin', password=hashed_pw, role='superadmin')
+            db.session.add(default_admin)
+            db.session.commit()
+            print("[INFO] Default admin user created: admin / admin123")
+    except Exception as e:
+        print(f"[WARNING] Database initialization skipped or error: {e}")
 
 @app.before_request
 def require_login():
