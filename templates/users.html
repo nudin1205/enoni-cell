@@ -6,250 +6,25 @@
   <title>Kelola Admin — Enoni Cell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-    html { font-size: 18px; }
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background: #0a0a1a;
-      color: #fff;
-    }
-
-    /* ── BACKGROUND ── */
-    .bg-wrapper {
-      position: fixed; inset: 0; z-index: 0;
-    }
-    .bg-wrapper img {
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
-      opacity: 0.6;
-    }
-    .bg-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(5,5,20,0.85) 0%, rgba(10,10,40,0.75) 50%, rgba(20,5,30,0.85) 100%);
-    }
-    .blob { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.15; z-index:1; pointer-events:none; }
-    .blob-1 { width:400px; height:400px; background:#7c3aed; top:-100px; left:-100px; }
-    .blob-2 { width:350px; height:350px; background:#f59e0b; bottom:-80px; right:-80px; }
-
-    /* ── NAVBAR ── */
-    .navbar {
-      position: relative; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 2rem;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .nav-brand { display:flex; align-items:center; gap:0.6rem; }
-    .nav-icon { font-size:1.5rem; }
-    .nav-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#fff; }
-    .nav-sub { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-left:0.4rem; text-transform:uppercase; letter-spacing:1px; }
-    .nav-links { display:flex; gap:0.5rem; }
-    .nav-link {
-      padding: 0.45rem 1rem; border-radius: 8px;
-      color: rgba(255,255,255,0.7); text-decoration:none;
-      font-size:0.85rem; font-weight:500;
-      transition: all 0.2s;
-    }
-    .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
-    .nav-link.active { background:rgba(245,158,11,0.2); color:#f59e0b; }
-    .nav-link.btn-logout {
-      background: rgba(239,68,68,0.15); color:#fca5a5;
-      border:1px solid rgba(239,68,68,0.3);
-    }
-    .nav-link.btn-logout:hover { background: rgba(239,68,68,0.3); }
-
-    /* ── MAIN CONTENT ── */
-    .dashboard-container {
-      position: relative; z-index: 5;
-      max-width: 1200px; margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
-
-    .db-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .glass-card {
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-
-    .card-header {
-      display:flex; align-items:center; gap:0.8rem;
-      margin-bottom:1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .card-header h2 { font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; }
-    .card-icon { font-size:1.5rem; }
-
-    /* ── FORM ── */
-    .form-group { margin-bottom: 1.2rem; }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.8);
-    }
-    .form-control {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .form-control:focus {
-      border-color: #f59e0b;
-      background: rgba(245,158,11,0.05);
-    }
-    .form-control option { background: #1a1a2e; color: #fff; }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1rem;
-      align-items: end;
-    }
-
-    @media(max-width:768px) {
-      .form-row { grid-template-columns: 1fr; }
-    }
-
-    .btn-submit {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #fff;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-      width: 100%;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-    }
-
-    /* ── TABLE ── */
-    .table-responsive { overflow-x: auto; }
-    .db-table {
-      width: 100%; border-collapse: collapse;
-      font-size: 0.9rem; color: rgba(255,255,255,0.8);
-    }
-    .db-table th {
-      text-align: left; padding: 1rem;
-      background: rgba(255,255,255,0.05);
-      font-family: 'Outfit', sans-serif; font-weight: 600;
-      color: #f59e0b; border-bottom: 2px solid rgba(255,255,255,0.1);
-    }
-    .db-table td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
-    .db-table tr:hover { background: rgba(255,255,255,0.03); }
-
-    .badge {
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .badge-superadmin { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-admin { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
-
-    .btn-delete {
-      background: rgba(239, 68, 68, 0.15);
-      color: #fca5a5;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.8rem;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      transition: all 0.2s;
-    }
-    .btn-delete:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-
-    /* ── FLASH ── */
-    .flash-wrap { position:relative; z-index:5; max-width:1200px; margin:0.5rem auto; padding:0 1.5rem; }
-    .alert { padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem; }
-    .alert-success { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#86efac; }
-    .alert-danger { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; }
-
-    /* ── MOBILE RESPONSIVE ── */
-    @media(max-width:768px) {
-      html { font-size: 15px; }
-      .navbar {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 0.75rem 1rem;
-        gap: 0.75rem;
-      }
-      .nav-brand { justify-content: center; }
-      .nav-links {
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 0.2rem 0.2rem 0.5rem;
-        gap: 0.4rem;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .nav-links::-webkit-scrollbar { display: none; }
-      .nav-link {
-        flex-shrink: 0;
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
-      }
-      .dashboard-container {
-        padding: 1rem 0.75rem 2rem !important;
-      }
-      .glass-card {
-        padding: 1.2rem 0.9rem !important;
-        border-radius: 16px !important;
-      }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
-<!-- ── BACKGROUND ──────────────────────────────────── -->
-<div class="bg-wrapper">
-  <img src="{{ url_for('static', filename='img/phone_background.png') }}" alt="bg">
-  <div class="bg-overlay"></div>
-</div>
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
 
 <!-- ── NAVBAR ─────────────────────────────────────── -->
 <nav class="navbar">
   <div class="nav-brand">
     <span class="nav-icon">📱</span>
-    <span class="nav-title">Enoni Cell</span>
-    <span class="nav-sub">Sistem Estimasi Gadai HP</span>
+    <div>
+      <span class="nav-title">Enoni Cell</span>
+      <span class="nav-sub">Manajemen Pengguna Admin</span>
+    </div>
   </div>
-  <div class="nav-links">
+  <button class="nav-toggle" id="navToggle" aria-label="Menu Navigasi">
+    <span class="icon-hamburger">☰</span>
+    <span class="icon-close" style="display:none;">✕</span>
+  </button>
+  <div class="nav-links" id="navLinks">
     <a href="/" class="nav-link">Estimasi</a>
     {% if session.get('logged_in') %}
       {% if session.get('role') == 'superadmin' %}
@@ -262,7 +37,7 @@
   </div>
 </nav>
 
-<!-- ── FLASH ──────────────────────────────────────── -->
+<!-- ── FLASH MESSAGES ─────────────────────────────── -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <div class="flash-wrap">
@@ -278,46 +53,46 @@
   <div class="db-grid">
     
     <!-- ADD USER CARD -->
-    <div class="glass-card">
+    <div class="card">
       <div class="card-header">
         <span class="card-icon">➕</span>
-        <h2>Tambah Akun Admin</h2>
+        <h2>Tambah Akun Pengelola Baru</h2>
       </div>
       
       <form action="/add_user" method="POST">
-        <div class="form-row">
+        <div class="form-row-3" style="align-items: flex-end;">
           <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" class="form-control" required placeholder="Masukkan username">
+            <label for="username">Username Admin</label>
+            <input type="text" id="username" name="username" required placeholder="Masukkan username">
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" class="form-control" required placeholder="Masukkan password">
+            <input type="password" id="password" name="password" required placeholder="Masukkan password">
           </div>
           <div class="form-group">
             <label for="role">Hak Akses (Role)</label>
-            <select id="role" name="role" class="form-control" required>
+            <select id="role" name="role" required>
               <option value="admin">Admin Biasa</option>
               <option value="superadmin">Superadmin</option>
             </select>
           </div>
         </div>
-        <div class="form-row" style="grid-template-columns: 1fr;">
-            <button type="submit" class="btn-submit">
-                <span>Simpan Akun Baru</span>
-            </button>
+        <div style="margin-top: 0.5rem;">
+          <button type="submit" class="btn-primary" style="width: auto; padding: 0.85rem 1.8rem;">
+            <span>➕ Simpan Akun Baru</span>
+          </button>
         </div>
       </form>
     </div>
 
     <!-- TABLE CARD -->
-    <div class="glass-card">
+    <div class="card">
       <div class="card-header">
         <span class="card-icon">👥</span>
-        <h2>Daftar Akun Admin</h2>
+        <h2>Daftar Akun Pengelola Terdaftar</h2>
       </div>
       <div class="table-responsive">
-        <table class="db-table">
+        <table class="table">
           <thead>
             <tr>
               <th>ID</th>
@@ -329,18 +104,20 @@
           <tbody>
             {% for u in users %}
             <tr>
-              <td>#{{ u.id_user }}</td>
-              <td style="font-weight: 600; color: #fff;">{{ u.username }}</td>
+              <td style="font-weight: 700;">#{{ u.id_user }}</td>
+              <td style="font-weight: 700; color: var(--text-primary);">{{ u.username }}</td>
               <td>
-                <span class="badge {{ 'badge-superadmin' if u.role == 'superadmin' else 'badge-admin' }}">
-                  {{ u.role }}
+                <span class="badge {{ 'badge-warning' if u.role == 'superadmin' else 'badge-info' }}">
+                  {{ u.role|upper }}
                 </span>
               </td>
               <td style="text-align: center;">
                 {% if u.username == session['username'] %}
-                  <span style="font-size: 0.8rem; color: rgba(255,255,255,0.4);">It's You</span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">(Akun Anda)</span>
                 {% else %}
-                  <a href="/delete_user/{{ u.id_user }}" class="btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus akun {{ u.username }}?');">Hapus</a>
+                  <a href="/delete_user/{{ u.id_user }}" class="btn-secondary" style="color: var(--danger); font-size: 0.8rem; padding: 0.35rem 0.75rem; text-decoration: none;" onclick="return confirm('Apakah Anda yakin ingin menghapus akun {{ u.username }}?');">
+                    🗑️ Hapus
+                  </a>
                 {% endif %}
               </td>
             </tr>
@@ -354,8 +131,9 @@
 </div>
 
 <footer class="footer">
-  &copy; 2026 Enoni Cell · Sistem Estimasi Gadai HP · Admin Dashboard
+  © 2026 Enoni Cell · Sistem Estimasi Gadai HP · Admin Management
 </footer>
 
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

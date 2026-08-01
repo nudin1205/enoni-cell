@@ -3,316 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Enoni Cell</title>
+  <title>Login Admin — Enoni Cell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html { font-size: 18px; }
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background-color: #0a0a1a;
-      overflow: hidden;
-    }
-
-    /* ── BACKGROUND ─────────────────────────────── */
-    .bg-wrapper {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .bg-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      opacity: 0.85;
-    }
-
-    .bg-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        135deg,
-        rgba(5, 5, 20, 0.75) 0%,
-        rgba(10, 10, 40, 0.60) 50%,
-        rgba(20, 5, 30, 0.75) 100%
-      );
-    }
-
-    /* ── NAVBAR ─────────────────────────────────── */
-    .navbar {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .nav-icon {
-      font-size: 1.5rem;
-    }
-
-    .nav-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-sub {
-      font-size: 0.7rem;
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.55);
-      margin-left: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* ── MAIN CONTENT ───────────────────────────── */
-    .login-wrapper {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    /* ── LOGIN CARD (Glassmorphism) ──────────────── */
-    .login-card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 24px;
-      padding: 2.8rem 2.4rem;
-      width: 100%;
-      max-width: 420px;
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        0 0 60px rgba(111, 66, 193, 0.15),
-        inset 0 1px 0 rgba(255,255,255,0.15);
-      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .card-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .card-icon {
-      font-size: 2.8rem;
-      display: block;
-      margin-bottom: 0.6rem;
-      filter: drop-shadow(0 0 12px rgba(255,165,0,0.6));
-    }
-
-    .card-header h2 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.5px;
-    }
-
-    .card-header p {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.3rem;
-    }
-
-    /* ── FORM ───────────────────────────────────── */
-    .form-group {
-      margin-bottom: 1.3rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.75);
-      margin-bottom: 0.45rem;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.9rem 1rem;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 0.95rem;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: all 0.25s ease;
-    }
-
-    .form-group input::placeholder {
-      color: rgba(255,255,255,0.3);
-    }
-
-    .form-group input:focus {
-      border-color: #f59e0b;
-      background: rgba(245,158,11,0.08);
-      box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
-    }
-
-    /* ── BUTTON ─────────────────────────────────── */
-    .btn-login {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 20px rgba(245,158,11,0.4);
-      margin-top: 0.5rem;
-    }
-
-    .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(245,158,11,0.55);
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    }
-
-    .btn-login:active {
-      transform: translateY(0);
-    }
-
-    /* ── FLASH MESSAGES ─────────────────────────── */
-    .flash-messages {
-      margin-bottom: 1.2rem;
-    }
-
-    .alert {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .alert-success {
-      background: rgba(34,197,94,0.15);
-      border: 1px solid rgba(34,197,94,0.3);
-      color: #86efac;
-    }
-
-    .alert-danger {
-      background: rgba(239,68,68,0.15);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-    }
-
-    .alert-info {
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.3);
-      color: #93c5fd;
-    }
-
-    /* ── MOBILE RESPONSIVE ── */
-    @media(max-width:480px) {
-      html { font-size: 15px; }
-      .login-wrapper { padding: 1rem; }
-      .login-card { padding: 2rem 1.4rem; border-radius: 18px; }
-    }
-
-    /* ── DECORATIVE BLOBS ───────────────────────── */
-    .blob {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.18;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .blob-1 {
-      width: 400px; height: 400px;
-      background: #7c3aed;
-      top: -100px; left: -100px;
-    }
-    .blob-2 {
-      width: 350px; height: 350px;
-      background: #f59e0b;
-      bottom: -80px; right: -80px;
-    }
-    .blob-3 {
-      width: 250px; height: 250px;
-      background: #06b6d4;
-      top: 40%; left: 60%;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-
-<!-- ── BACKGROUND ──────────────────────────────────────────── -->
-<div class="bg-wrapper">
-  <img src="{{ url_for('static', filename='img/phone_background.png') }}" alt="Background HP">
-  <div class="bg-overlay"></div>
-</div>
-
-<!-- ── DECORATIVE BLOBS ────────────────────────────────────── -->
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
-<div class="blob blob-3"></div>
+<body class="login-page">
 
 <!-- ── NAVBAR ─────────────────────────────────────────────── -->
-<nav class="navbar">
+<nav class="navbar" style="position: absolute; top:0; left:0; right:0;">
   <div class="nav-brand">
     <span class="nav-icon">📱</span>
-    <span class="nav-title">Enoni Cell</span>
-    <span class="nav-sub">Sistem Estimasi Gadai HP</span>
+    <div>
+      <span class="nav-title">Enoni Cell</span>
+      <span class="nav-sub">Portal Administrasi</span>
+    </div>
   </div>
+
 </nav>
 
 <!-- ── LOGIN CARD ──────────────────────────────────────────── -->
-<div class="login-wrapper">
-  <div class="login-card">
-    <div class="card-header">
-      <span class="card-icon">🔐</span>
-      <h2>Login Admin</h2>
-      <p>Masukkan kredensial untuk melanjutkan</p>
+<div class="main-container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-top: 5rem;">
+  <div class="card login-card" style="width: 100%; max-width: 440px; padding: 2.2rem;">
+    <div style="text-align: center; margin-bottom: 1.8rem;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">Login Admin Enoni Cell</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">Masukkan username & password untuk mengelola sistem.</p>
     </div>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash-messages">
+        <div class="flash-messages" style="margin-bottom: 1.2rem;">
           {% for category, message in messages %}
             <div class="alert alert-{{ category }}">{{ message }}</div>
           {% endfor %}
@@ -322,18 +45,18 @@
 
     <form method="POST" action="/login">
       <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" placeholder="Masukkan username" required autocomplete="off">
+        <label for="username">Username Admin</label>
+        <input type="text" id="username" name="username" placeholder="Masukkan username admin" required autocomplete="off">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 1.6rem;">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Masukkan password" required>
       </div>
-      <button type="submit" class="btn-login">Masuk</button>
+      <button type="submit" class="btn-primary" style="width: 100%;">Masuk ke Sistem</button>
     </form>
 
-    <div class="login-footer">
-      &copy; 2026 Enoni Cell · Sistem Estimasi Gadai HP
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 1rem;">
+      &copy; 2026 Enoni Cell — Multi-user Management System
     </div>
   </div>
 </div>

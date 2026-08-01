@@ -3,229 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kelola Dataset & Model — Enoni Cell</title>
+  <title>Kelola Dataset & Model ML — Enoni Cell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-    html { font-size: 18px; }
-    body {
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      background: #0a0a1a;
-      color: #fff;
-    }
-
-    /* ── BACKGROUND ── */
-    .bg-wrapper {
-      position: fixed; inset: 0; z-index: 0;
-    }
-    .bg-wrapper img {
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
-      opacity: 0.6;
-    }
-    .bg-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(5,5,20,0.85) 0%, rgba(10,10,40,0.75) 50%, rgba(20,5,30,0.85) 100%);
-    }
-    .blob { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.15; z-index:1; pointer-events:none; }
-    .blob-1 { width:400px; height:400px; background:#7c3aed; top:-100px; left:-100px; }
-    .blob-2 { width:350px; height:350px; background:#f59e0b; bottom:-80px; right:-80px; }
-
-    /* ── NAVBAR ── */
-    .navbar {
-      position: relative; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 2rem;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .nav-brand { display:flex; align-items:center; gap:0.6rem; }
-    .nav-icon { font-size:1.5rem; }
-    .nav-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:#fff; }
-    .nav-sub { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-left:0.4rem; text-transform:uppercase; letter-spacing:1px; }
-    .nav-links { display:flex; gap:0.5rem; }
-    .nav-link {
-      padding: 0.45rem 1rem; border-radius: 8px;
-      color: rgba(255,255,255,0.7); text-decoration:none;
-      font-size:0.85rem; font-weight:500;
-      transition: all 0.2s;
-    }
-    .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
-    .nav-link.active { background:rgba(245,158,11,0.2); color:#f59e0b; }
-    .nav-link.btn-logout {
-      background: rgba(239,68,68,0.15); color:#fca5a5;
-      border:1px solid rgba(239,68,68,0.3);
-    }
-    .nav-link.btn-logout:hover { background: rgba(239,68,68,0.3); }
-
-    /* ── MAIN CONTENT ── */
-    .dashboard-container {
-      position: relative; z-index: 5;
-      max-width: 1200px; margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
-
-    .db-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .glass-card {
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-
-    .card-header {
-      display:flex; align-items:center; gap:0.8rem;
-      margin-bottom:1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .card-header h2 { font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; }
-    .card-icon { font-size:1.5rem; }
-
-    /* ── FORM UPLOAD ── */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.8);
-    }
-    .form-control-file {
-      display: block;
-      width: 100%;
-      padding: 1rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px dashed rgba(255,255,255,0.2);
-      border-radius: 12px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .form-control-file:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: #f59e0b;
-    }
-    .btn-submit {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #fff;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-    }
-
-    .info-box {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      font-size: 0.85rem;
-      color: #93c5fd;
-      line-height: 1.5;
-    }
-
-    /* ── TABLE ── */
-    .table-responsive { overflow-x: auto; }
-    .db-table {
-      width: 100%; border-collapse: collapse;
-      font-size: 0.9rem; color: rgba(255,255,255,0.8);
-    }
-    .db-table th {
-      text-align: left; padding: 1rem;
-      background: rgba(255,255,255,0.05);
-      font-family: 'Outfit', sans-serif; font-weight: 600;
-      color: #f59e0b; border-bottom: 2px solid rgba(255,255,255,0.1);
-    }
-    .db-table td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .db-table tr:hover { background: rgba(255,255,255,0.03); }
-
-    .status-sukses { color: #86efac; font-weight: 600; }
-    .status-gagal { color: #fca5a5; font-size: 0.8rem; }
-
-    /* ── FLASH ── */
-    .flash-wrap { position:relative; z-index:5; max-width:1200px; margin:0.5rem auto; padding:0 1.5rem; }
-    .alert { padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem; }
-    .alert-success { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#86efac; }
-    .alert-danger { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; }
-
-    /* ── MOBILE RESPONSIVE ── */
-    @media(max-width:768px) {
-      html { font-size: 15px; }
-      .navbar {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 0.75rem 1rem;
-        gap: 0.75rem;
-      }
-      .nav-brand { justify-content: center; }
-      .nav-links {
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 0.2rem 0.2rem 0.5rem;
-        gap: 0.4rem;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .nav-links::-webkit-scrollbar { display: none; }
-      .nav-link {
-        flex-shrink: 0;
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
-      }
-      .dashboard-container {
-        padding: 1rem 0.75rem 2rem !important;
-      }
-      .glass-card {
-        padding: 1.2rem 0.9rem !important;
-        border-radius: 16px !important;
-      }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
-<!-- ── BACKGROUND ──────────────────────────────────── -->
-<div class="bg-wrapper">
-  <img src="{{ url_for('static', filename='img/phone_background.png') }}" alt="bg">
-  <div class="bg-overlay"></div>
-</div>
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
 
 <!-- ── NAVBAR ─────────────────────────────────────── -->
 <nav class="navbar">
   <div class="nav-brand">
     <span class="nav-icon">📱</span>
-    <span class="nav-title">Enoni Cell</span>
-    <span class="nav-sub">Sistem Estimasi Gadai HP</span>
+    <div>
+      <span class="nav-title">Enoni Cell</span>
+      <span class="nav-sub">Manajemen Dataset & AI Model</span>
+    </div>
   </div>
-  <div class="nav-links">
+  <button class="nav-toggle" id="navToggle" aria-label="Menu Navigasi">
+    <span class="icon-hamburger">☰</span>
+    <span class="icon-close" style="display:none;">✕</span>
+  </button>
+  <div class="nav-links" id="navLinks">
     <a href="/" class="nav-link">Estimasi</a>
     {% if session.get('logged_in') %}
       {% if session.get('role') == 'superadmin' %}
@@ -238,7 +37,7 @@
   </div>
 </nav>
 
-<!-- ── FLASH ──────────────────────────────────────── -->
+<!-- ── FLASH MESSAGES ─────────────────────────────── -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <div class="flash-wrap">
@@ -254,83 +53,89 @@
   <div class="db-grid">
     
     <!-- UPLOAD CARD -->
-    <div class="glass-card">
+    <div class="card">
       <div class="card-header">
-        <span class="card-icon">🧠</span>
-        <h2>Upload Dataset & Latih Ulang Model</h2>
+        <span class="card-icon">⚙️</span>
+        <h2>Upload Dataset & Retrain Machine Learning Model</h2>
       </div>
       
-      <div class="info-box">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-          <div>
-            <strong>Informasi:</strong><br>
-            Unggah file berformat <code>.xlsx</code> atau <code>.csv</code> yang berisi dataset lengkap (lama + baru). Sistem akan otomatis membaca merk & tipe baru, melatih ulang model <i>Random Forest Regressor</i>, dan memperbarui sistem secara real-time.<br>
-            <b>Kolom Wajib:</b> <code>merk, tipe, tahun, ram, storage, kondisi, charger, dus, fungsi, harga</code>.
-          </div>
-          <a href="/download_template" style="display: inline-block; background: rgba(59, 130, 246, 0.2); color: #93c5fd; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
-            ⬇️ Download Template Excel
-          </a>
+      <div class="catatan catatan-guide">
+        <div class="catatan-text">
+          <strong style="color: var(--text-primary);">Panduan Update Dataset:</strong><br>
+          Unggah file berformat <code>.xlsx</code> atau <code>.csv</code> yang berisi data transaksi terbaru. Sistem akan otomatis melatih ulang model <i>Random Forest Regressor</i> dan memperbarui tipe HP secara otomatis.<br>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Format kolom wajib: <code>merk, tipe, tahun, ram, storage, kondisi, charger, dus, fungsi, harga</code></span>
         </div>
+        <a href="/download_template" class="btn-secondary btn-download-template">
+          📥 Download Template Excel
+        </a>
       </div>
 
       <form action="/upload_dataset" method="POST" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="file_dataset">Pilih File Dataset (.xlsx / .csv)</label>
-          <input type="file" id="file_dataset" name="file_dataset" class="form-control-file" accept=".csv, .xlsx, .xls" required>
+          <label for="file_dataset">Pilih File Dataset Baru (.xlsx / .csv)</label>
+          <input type="file" id="file_dataset" name="file_dataset" accept=".csv, .xlsx, .xls" required>
         </div>
-        <button type="submit" class="btn-submit" id="btn-upload">
-          <span>🚀 Upload & Latih Model</span>
+        <button type="submit" class="btn-primary" id="btn-upload" style="width: auto; padding: 0.85rem 1.8rem;">
+          <span>🚀 Upload Dataset & Retrain Model</span>
         </button>
       </form>
     </div>
 
     <!-- TABLE CARD -->
-    <div class="glass-card">
+    <div class="card">
       <div class="card-header">
         <span class="card-icon">🗂️</span>
         <h2>Riwayat Pembaruan Dataset</h2>
       </div>
       <div class="table-responsive">
-        <table class="db-table">
+        <table class="table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Waktu Update</th>
+              <th>Waktu Upload</th>
               <th>Nama File</th>
               <th>Pengunggah</th>
               <th>Jumlah Baris</th>
               <th>Akurasi (R²)</th>
-              <th>Mean Absolute Error (MAE)</th>
+              <th>MAE Error</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {% for u in updates %}
             <tr>
-              <td>#{{ u.id_dataset }}</td>
-              <td style="white-space: nowrap;">{{ u.tanggal_upload.strftime('%Y-%m-%d %H:%M') }}</td>
-              <td>{{ u.nama_file }}</td>
-              <td style="color: #93c5fd;">{{ u.uploader.username if u.uploader else 'Admin Sistem' }}</td>
+              <td style="font-weight: 700;">#{{ u.id_dataset }}</td>
+              <td style="white-space: nowrap; font-size: 0.82rem; color: var(--text-muted);">
+                {{ u.tanggal_upload.strftime('%d/%m/%Y %H:%M') }}
+              </td>
+              <td style="font-weight: 600;">{{ u.nama_file }}</td>
+              <td style="font-size: 0.85rem; color: var(--text-secondary);">
+                {{ u.uploader.username if u.uploader else 'Admin Sistem' }}
+              </td>
               <td>{{ "{:,}".format(u.jumlah_baris) }} baris</td>
-              <td style="font-weight: 600;">
+              <td style="font-weight: 700; color: var(--brand-teal);">
                 {% if u.akurasi_r2 %}
                   {{ "%.4f"|format(u.akurasi_r2) }}
                 {% else %}
                   -
                 {% endif %}
               </td>
-              <td style="color: #f59e0b;">
+              <td style="color: var(--accent-gold); font-weight: 600;">
                 {% if u.mae %}
                   Rp {{ "{:,.0f}".format(u.mae).replace(',', '.') }}
                 {% else %}
                   -
                 {% endif %}
               </td>
-              <td class="{{ 'status-sukses' if u.status == 'Sukses' else 'status-gagal' }}">{{ u.status }}</td>
+              <td>
+                <span class="badge {{ 'badge-success' if u.status == 'Sukses' else 'badge-danger' }}">
+                  {{ u.status }}
+                </span>
+              </td>
             </tr>
             {% else %}
             <tr>
-              <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.3);">
+              <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
                 Belum ada riwayat pembaruan dataset.
               </td>
             </tr>
@@ -344,18 +149,20 @@
 </div>
 
 <footer class="footer">
-  &copy; 2026 Enoni Cell · Sistem Estimasi Gadai HP · Admin Dashboard
+  © 2026 Enoni Cell · Sistem Estimasi Gadai HP · Admin Management
 </footer>
 
 <script>
-  // Simple loading feedback
   const form = document.querySelector('form');
   const btn = document.getElementById('btn-upload');
-  form.addEventListener('submit', function() {
-    btn.innerHTML = '<span>⏳ Memproses & Melatih Model...</span>';
-    btn.style.opacity = '0.7';
-    btn.style.cursor = 'wait';
-  });
+  if (form && btn) {
+    form.addEventListener('submit', function() {
+      btn.innerHTML = '<span>⏳ Memproses Data & Melatih Model...</span>';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+    });
+  }
 </script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
