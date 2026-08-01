@@ -1,226 +1,237 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Estimasi Nilai Gadai HP — Enoni Cell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
-<!-- ── NAVBAR ─────────────────────────────────────── -->
-<nav class="navbar">
-  <div class="nav-brand">
-    <span class="nav-icon">📱</span>
-    <div>
-      <span class="nav-title">Enoni Cell</span>
-      <span class="nav-sub">Gadai & Valuation HP</span>
+  <!-- ── NAVBAR ─────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-icon">📱</span>
+      <div>
+        <span class="nav-title">Enoni Cell</span>
+        <span class="nav-sub">Gadai & Valuation HP</span>
+      </div>
     </div>
-  </div>
-  <button class="nav-toggle" id="navToggle" aria-label="Menu Navigasi">
-    <span class="icon-hamburger">☰</span>
-    <span class="icon-close" style="display:none;">✕</span>
-  </button>
-  <div class="nav-links" id="navLinks">
-    <a href="/" class="nav-link active">Estimasi Gadai</a>
-    {% if session.get('logged_in') %}
+    <button class="nav-toggle" id="navToggle" aria-label="Menu Navigasi">
+      <span class="icon-hamburger">☰</span>
+      <span class="icon-close" style="display:none;">✕</span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="/" class="nav-link active">Estimasi Gadai</a>
+      {% if session.get('logged_in') %}
       {% if session.get('role') == 'superadmin' %}
       <a href="/users" class="nav-link">Kelola Admin</a>
       {% endif %}
       <a href="/dataset" class="nav-link">Kelola Dataset</a>
       <a href="/dashboard" class="nav-link">Dashboard</a>
       <a href="/logout" class="nav-link btn-logout">Logout</a>
-    {% else %}
+      {% else %}
       <a href="/login" class="nav-link">Login Admin</a>
-    {% endif %}
-  </div>
-</nav>
+      {% endif %}
+    </div>
+  </nav>
 
-<!-- ── FLASH MESSAGES ─────────────────────────────── -->
-{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- ── FLASH MESSAGES ─────────────────────────────── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <div class="flash-wrap">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
+  <div class="flash-wrap">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
   {% endif %}
-{% endwith %}
+  {% endwith %}
 
-<!-- ── HERO HEADER ───────────────────────────────── -->
-<div class="hero">
-  <h1>Estimasi Nilai Gadai Handphone</h1>
-  <p>Perhitungan nilai pencairan gadai transparan & akurat berdasarkan analisis data transaksi Enoni Cell.</p>
-  <div class="hero-tags">
-    <span class="hero-tag">⚡ Proses Instan</span>
-    <span class="hero-tag">🔒 Data Terjamin Aman</span>
-    <span class="hero-tag">📊 Model Machine Learning</span>
-  </div>
-</div>
-
-<!-- ── MAIN CONTENT ───────────────────────────────── -->
-<div class="main-container">
-  <div class="layout-2col">
-
-    <!-- FORM INPUT -->
-    <div class="card form-card">
-      <div class="card-header">
-        <span class="card-icon">📋</span>
-        <h2>Spesifikasi & Kondisi Device</h2>
-      </div>
-      <form id="formEstimasi">
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="merk">Merk HP <span class="required">*</span></label>
-            <select id="merk" name="merk" required>
-              <option value="">-- Pilih Merk --</option>
-              {% for m in merk_list %}
-              <option value="{{ m }}">{{ m }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="tipe">Tipe / Model <span class="required">*</span></label>
-            <input type="text" id="tipe" name="tipe" placeholder="Contoh: Galaxy A54, iPhone 13, dll." required>
-          </div>
-        </div>
-
-        <div class="form-row-3">
-          <div class="form-group">
-            <label for="tahun">Tahun Rilis <span class="required">*</span></label>
-            <select id="tahun" name="tahun" required>
-              <option value="">-- Pilih --</option>
-              {% for y in range(tahun_max, tahun_min - 1, -1) %}
-              <option value="{{ y }}">{{ y }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="ram">RAM (GB) <span class="required">*</span></label>
-            <select id="ram" name="ram" required>
-              <option value="">-- Pilih --</option>
-              {% for r in ram_list %}
-              <option value="{{ r }}">{{ r }} GB</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="storage">Storage (GB) <span class="required">*</span></label>
-            <select id="storage" name="storage" required>
-              <option value="">-- Pilih --</option>
-              {% for s in storage_list %}
-              <option value="{{ s }}">{{ s }} GB</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Kondisi Fisik <span class="required">*</span></label>
-          <div class="kondisi-group">
-            <label class="kondisi-card" id="card-4">
-              <input type="radio" name="kondisi" value="4" required>
-              <div>
-                <span class="kondisi-nilai">4</span>
-                <span class="kondisi-label">Baret Ringan</span>
-                <span class="kondisi-desc">Pemakaian wajar, lecet halus</span>
-              </div>
-            </label>
-            <label class="kondisi-card" id="card-5">
-              <input type="radio" name="kondisi" value="5" required>
-              <div>
-                <span class="kondisi-nilai">5</span>
-                <span class="kondisi-label">Mulus / Like New</span>
-                <span class="kondisi-desc">Sempurna tanpa baret/fisik mulus</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Kelengkapan Aksesori</label>
-          <div class="toggle-group">
-            <div class="toggle-item">
-              <span class="toggle-label">Charger Original / Bawaan?</span>
-              <label class="switch"><input type="checkbox" id="charger" name="charger" value="1"><span class="slider"></span></label>
-              <span class="toggle-val" id="val-charger">Tidak</span>
-            </div>
-            <div class="toggle-item">
-              <span class="toggle-label">Dus / Box Kemasan?</span>
-              <label class="switch"><input type="checkbox" id="dus" name="dus" value="1"><span class="slider"></span></label>
-              <span class="toggle-val" id="val-dus">Tidak</span>
-            </div>
-            <div class="toggle-item">
-              <span class="toggle-label">Semua Fungsi Hardware Normal?</span>
-              <label class="switch"><input type="checkbox" id="fungsi" name="fungsi" value="1" checked><span class="slider"></span></label>
-              <span class="toggle-val" id="val-fungsi">Ya</span>
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-estimasi" id="btnEstimasi">
-          <span>🔍</span>
-          <span class="btn-text">Hitung Estimasi Nilai Gadai</span>
-        </button>
-      </form>
+  <!-- ── HERO HEADER ───────────────────────────────── -->
+  <div class="hero">
+    <h1>Estimasi Nilai Gadai Handphone</h1>
+    <p>Perhitungan nilai pencairan gadai transparan & akurat berdasarkan analisis data transaksi Enoni Cell.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">⚡ Proses Instan</span>
+      <span class="hero-tag">🔒 Data Terjamin Aman</span>
+      <span class="hero-tag">📊 Model Machine Learning</span>
     </div>
+  </div>
 
-    <!-- HASIL ESTIMASI -->
-    <div class="card" id="hasilCard">
-      <div id="stateEmpty" class="state-empty">
-        <div class="empty-icon">📱</div>
-        <p class="empty-text">Lengkapi spesifikasi handphone di sebelah kiri<br>lalu klik <strong>Hitung Estimasi Nilai Gadai</strong>.</p>
-      </div>
+  <!-- ── MAIN CONTENT ───────────────────────────────── -->
+  <div class="main-container">
+    <div class="layout-2col">
 
-      <div id="stateLoading" class="state-loading" style="display:none">
-        <div class="spinner"></div>
-        <p style="color:var(--text-muted); font-weight: 600;">Menganalisis spesifikasi & menghitung nilai pencairan...</p>
-      </div>
-
-      <div id="stateError" class="state-error" style="display:none">
-        <div class="error-icon">⚠️</div>
-        <p id="errorMsg">Terjadi kesalahan.</p>
-      </div>
-
-      <div id="stateHasil" style="display:none">
+      <!-- FORM INPUT -->
+      <div class="card form-card">
         <div class="card-header">
-          <span class="card-icon">💵</span>
-          <h2>Ringkasan Estimasi Pencairan</h2>
+          <span class="card-icon">📋</span>
+          <h2>Spesifikasi & Kondisi Device</h2>
         </div>
+        <form id="formEstimasi">
 
-        <div class="nilai-utama" id="nilaiUtama">
-          <div class="nilai-label">Maksimal Nilai Pencairan Gadai</div>
-          <div class="nilai-angka" id="nilaiAngka">Rp 0</div>
-          <div class="nilai-badge" id="nilaiBadge">Kategori Gadai</div>
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="merk">Merk HP <span class="required">*</span></label>
+              <select id="merk" name="merk" required>
+                <option value="">-- Pilih Merk --</option>
+                {% for m in merk_list %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tipe">Tipe / Model <span class="required">*</span></label>
+              <input type="text" id="tipe" name="tipe" placeholder="Contoh: Oppo a12, Realme C51" required>
+            </div>
+          </div>
 
-        <div class="detail-grid" id="detailGrid"></div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="tahun">Tahun Rilis <span class="required">*</span></label>
+              <select id="tahun" name="tahun" required>
+                <option value="">-- Pilih --</option>
+                {% for y in range(tahun_max, tahun_min - 1, -1) %}
+                <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="ram">RAM (GB) <span class="required">*</span></label>
+              <select id="ram" name="ram" required>
+                <option value="">-- Pilih --</option>
+                {% for r in ram_list %}
+                <option value="{{ r }}">{{ r }} GB</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="storage">Storage (GB) <span class="required">*</span></label>
+              <select id="storage" name="storage" required>
+                <option value="">-- Pilih --</option>
+                {% for s in storage_list %}
+                <option value="{{ s }}">{{ s }} GB</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
 
-        <div class="catatan">
-          <span>ℹ️</span>
-          <p>Nilai di atas merupakan <strong>estimasi acuan resmi</strong> dari sistem Enoni Cell. Nilai final pencairan tunai akan dikonfirmasi kembali setelah pemeriksaan fisik langsung oleh staf toko.</p>
-        </div>
+          <div class="form-group">
+            <label>Kondisi Fisik <span class="required">*</span></label>
+            <div class="kondisi-group">
+              <label class="kondisi-card" id="card-4">
+                <input type="radio" name="kondisi" value="4" required>
+                <div>
+                  <span class="kondisi-nilai">4</span>
+                  <span class="kondisi-label">Baret Ringan</span>
+                  <span class="kondisi-desc">Pemakaian wajar, lecet halus</span>
+                </div>
+              </label>
+              <label class="kondisi-card" id="card-5">
+                <input type="radio" name="kondisi" value="5" required>
+                <div>
+                  <span class="kondisi-nilai">5</span>
+                  <span class="kondisi-label">Mulus / Like New</span>
+                  <span class="kondisi-desc">Sempurna tanpa baret/fisik mulus</span>
+                </div>
+              </label>
+            </div>
+          </div>
 
-        <button class="btn-ulang" onclick="resetForm()">↩ Hitung HP Lainnya</button>
+          <div class="form-group">
+            <label>Kelengkapan Aksesori</label>
+            <div class="toggle-group">
+              <div class="toggle-item">
+                <span class="toggle-label">Charger Original / Bawaan?</span>
+                <label class="switch"><input type="checkbox" id="charger" name="charger" value="1"><span
+                    class="slider"></span></label>
+                <span class="toggle-val" id="val-charger">Tidak</span>
+              </div>
+              <div class="toggle-item">
+                <span class="toggle-label">Dus / Box Kemasan?</span>
+                <label class="switch"><input type="checkbox" id="dus" name="dus" value="1"><span
+                    class="slider"></span></label>
+                <span class="toggle-val" id="val-dus">Tidak</span>
+              </div>
+              <div class="toggle-item">
+                <span class="toggle-label">Semua Fungsi Hardware Normal?</span>
+                <label class="switch"><input type="checkbox" id="fungsi" name="fungsi" value="1" checked><span
+                    class="slider"></span></label>
+                <span class="toggle-val" id="val-fungsi">Ya</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-estimasi" id="btnEstimasi">
+            <span>🔍</span>
+            <span class="btn-text">Hitung Estimasi Nilai Gadai</span>
+          </button>
+        </form>
       </div>
+
+      <!-- HASIL ESTIMASI -->
+      <div class="card" id="hasilCard">
+        <div id="stateEmpty" class="state-empty">
+          <div class="empty-icon">📱</div>
+          <p class="empty-text">Lengkapi spesifikasi handphone di sebelah kiri<br>lalu klik <strong>Hitung Estimasi
+              Nilai Gadai</strong>.</p>
+        </div>
+
+        <div id="stateLoading" class="state-loading" style="display:none">
+          <div class="spinner"></div>
+          <p style="color:var(--text-muted); font-weight: 600;">Menganalisis spesifikasi & menghitung nilai pencairan...
+          </p>
+        </div>
+
+        <div id="stateError" class="state-error" style="display:none">
+          <div class="error-icon">⚠️</div>
+          <p id="errorMsg">Terjadi kesalahan.</p>
+        </div>
+
+        <div id="stateHasil" style="display:none">
+          <div class="card-header">
+            <span class="card-icon">💵</span>
+            <h2>Ringkasan Estimasi Pencairan</h2>
+          </div>
+
+          <div class="nilai-utama" id="nilaiUtama">
+            <div class="nilai-label">Maksimal Nilai Pencairan Gadai</div>
+            <div class="nilai-angka" id="nilaiAngka">Rp 0</div>
+            <div class="nilai-badge" id="nilaiBadge">Kategori Gadai</div>
+          </div>
+
+          <div class="detail-grid" id="detailGrid"></div>
+
+          <div class="catatan">
+            <span>ℹ️</span>
+            <p>Nilai di atas merupakan <strong>estimasi acuan resmi</strong> dari sistem Enoni Cell. Nilai final
+              pencairan tunai akan dikonfirmasi kembali setelah pemeriksaan fisik langsung oleh staf toko.</p>
+          </div>
+
+          <button class="btn-ulang" onclick="resetForm()">↩ Hitung HP Lainnya</button>
+        </div>
+      </div>
+
     </div>
-
   </div>
-</div>
 
-<!-- ── FOOTER ─────────────────────────────────────── -->
-<footer class="footer">
-  <p>© Enoni Cell — Layanan Gadai & Taksiran Harga Gadget Terpercaya.</p>
-  <p style="font-size: 0.75rem; color: #64748b;">Sistem Estimasi bertenaga Machine Learning Random Forest</p>
-</footer>
+  <!-- ── FOOTER ─────────────────────────────────────── -->
+  <footer class="footer">
+    <p>© Enoni Cell — Layanan Gadai & Taksiran Harga Gadget Terpercaya.</p>
+    <p style="font-size: 0.75rem; color: #64748b;">Sistem Estimasi bertenaga Machine Learning Random Forest</p>
+  </footer>
 
-<script>
-  const TIPE_PER_MERK = {{ tipe_per_merk | tojson }};
-</script>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    const TIPE_PER_MERK = {{ tipe_per_merk | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
+
 </html>
