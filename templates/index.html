@@ -38,7 +38,7 @@
       <a href="/dashboard" class="nav-link">Dashboard</a>
       <a href="/logout" class="nav-link btn-logout">Logout</a>
       {% else %}
-      <a href="/login" class="nav-link">Login Admin</a>
+      <a href="/login" class="nav-link">Login</a>
       {% endif %}
     </div>
   </nav>
@@ -60,7 +60,7 @@
     <p>Perhitungan nilai pencairan gadai transparan & akurat berdasarkan analisis data transaksi Enoni Cell.</p>
     <div class="hero-tags">
       <span class="hero-tag">⚡ Proses Instan</span>
-      <span class="hero-tag">🔒 Data Terjamin Aman</span>
+      <span class="hero-tag">👥 Simulasi Mandiri Nasabah</span>
       <span class="hero-tag">📊 Model Machine Learning</span>
     </div>
   </div>
@@ -89,7 +89,9 @@
             </div>
             <div class="form-group">
               <label for="tipe">Tipe / Model <span class="required">*</span></label>
-              <input type="text" id="tipe" name="tipe" placeholder="Contoh: Oppo a12, Realme C51" required>
+              <select id="tipe" name="tipe" required disabled>
+                <option value="">-- Pilih Merk Terlebih Dahulu --</option>
+              </select>
             </div>
           </div>
 

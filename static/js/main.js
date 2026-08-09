@@ -68,6 +68,34 @@ const selMerk       = document.getElementById('merk');
 const selTipe       = document.getElementById('tipe');
 const btnEstimasi   = document.getElementById('btnEstimasi');
 
+// ── Populasi Tipe HP berdasarkan Merk ─────────────────────
+if (selMerk && selTipe) {
+  selMerk.addEventListener('change', function () {
+    const selectedMerk = this.value;
+    selTipe.innerHTML = '';
+
+    const tipeData = (typeof TIPE_PER_MERK !== 'undefined') ? TIPE_PER_MERK : {};
+
+    if (!selectedMerk || !tipeData[selectedMerk] || tipeData[selectedMerk].length === 0) {
+      selTipe.innerHTML = '<option value="">-- Pilih Merk Terlebih Dahulu --</option>';
+      selTipe.disabled = true;
+      return;
+    }
+
+    const tipes = tipeData[selectedMerk];
+    selTipe.innerHTML = '<option value="">-- Pilih Tipe / Model --</option>';
+    tipes.forEach(function (t) {
+      const opt = document.createElement('option');
+      opt.value = t;
+      // Capitalize first letter of each word for display
+      opt.textContent = t.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      selTipe.appendChild(opt);
+    });
+
+    selTipe.disabled = false;
+  });
+}
+
 const stateEmpty    = document.getElementById('stateEmpty');
 const stateLoading  = document.getElementById('stateLoading');
 const stateError    = document.getElementById('stateError');
@@ -212,7 +240,10 @@ function cetakStruk() {
 // ── Reset form ────────────────────────────────────────────
 function resetForm() {
   if (formEstimasi) formEstimasi.reset();
-  if (selTipe) selTipe.value = '';
+  if (selTipe) {
+    selTipe.innerHTML = '<option value="">-- Pilih Merk Terlebih Dahulu --</option>';
+    selTipe.disabled = true;
+  }
 
   ['charger', 'dus'].forEach(id => {
     const lbl = document.getElementById('val-' + id);

@@ -96,8 +96,8 @@ with app.app_context():
 
 @app.before_request
 def require_login():
-    # Rute yang boleh diakses tanpa login
-    allowed_routes = ['login', 'static']
+    # Rute yang boleh diakses tanpa login (Nasabah & Login)
+    allowed_routes = ['index', 'estimasi', 'login', 'static']
     if request.endpoint not in allowed_routes and not session.get('logged_in'):
         return redirect(url_for('login'))
 
