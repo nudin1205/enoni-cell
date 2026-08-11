@@ -209,18 +209,18 @@ def estimasi():
             db.session.commit()
             return jsonify({'status': 'error', 'pesan': error_msg + ' Data telah tersimpan untuk review Admin.'})
 
-        # ── Preprocessing (sama persis dengan saat training) ──
+        # ── Preprocessing & Prediksi ML (Solusi Depresiasi Logis) ──
         merk_enc = int(le_merk.transform([merk])[0])
         tipe_enc = int(le_tipe.transform([tipe])[0])
-        # Menghitung umur HP secara dinamis berdasarkan tahun saat ini
         tahun_sekarang = datetime.now().year
-        usia_hp  = tahun_sekarang - tahun
+        usia_hp  = max(0, tahun_sekarang - tahun)
 
-        fitur = np.array([[
+        # 1. Fitur acuan base (menggunakan rilis terbaru sebagai acuan baseline ML)
+        fitur_base = np.array([[
             merk_enc,   # merk_enc
             tipe_enc,   # tipe_enc
-            tahun,      # tahun
-            usia_hp,    # usia_hp
+            tahun_sekarang, # tahun acuan rilis baru
+            0,          # usia_hp = 0
             ram,        # ram
             storage,    # storage
             kondisi,    # kondisi
@@ -229,8 +229,14 @@ def estimasi():
             fungsi,     # fungsi_enc
         ]])
 
-        # ── Prediksi ──────────────────────────────────────
-        hasil = model.predict(fitur)[0]
+        # 2. Dapatkan nilai prediksi acuan dari model Machine Learning
+        base_val = model.predict(fitur_base)[0]
+
+        # 3. Terapkan faktor depresiasi logis (penyusutan 5% per tahun usia HP)
+        faktor_depresiasi = max(0.60, 1.0 - (usia_hp * 0.05))
+
+        # 4. Hitung hasil estimasi final
+        hasil = base_val * faktor_depresiasi
         hasil = max(0, int(round(hasil, -3)))   # bulatkan ke ribuan
 
         # ── Kategori nilai ────────────────────────────────
