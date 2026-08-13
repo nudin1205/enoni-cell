@@ -18,7 +18,7 @@
     <span class="nav-icon">📱</span>
     <div>
       <span class="nav-title">Enoni Cell</span>
-      <span class="nav-sub">Dashboard Administrator</span>
+      <span class="nav-sub">{% if session.get('role') == 'nasabah' %}Portal Nasabah{% else %}Dashboard Administrator{% endif %}</span>
     </div>
   </div>
   <button class="nav-toggle" id="navToggle" aria-label="Menu Navigasi">
@@ -26,15 +26,15 @@
     <span class="icon-close" style="display:none;">✕</span>
   </button>
   <div class="nav-links" id="navLinks">
-    <a href="/" class="nav-link">Estimasi</a>
-    {% if session.get('logged_in') %}
-      {% if session.get('role') == 'superadmin' %}
-      <a href="/users" class="nav-link">Kelola Admin</a>
-      {% endif %}
+    <a href="/" class="nav-link">Estimasi Gadai</a>
+    <a href="/dashboard" class="nav-link active">Dashboard</a>
+    {% if session.get('role') in ['admin', 'superadmin'] %}
       <a href="/dataset" class="nav-link">Kelola Dataset</a>
-      <a href="/dashboard" class="nav-link active">Dashboard</a>
-      <a href="/logout" class="nav-link btn-logout">Logout</a>
     {% endif %}
+    {% if session.get('role') == 'superadmin' %}
+      <a href="/users" class="nav-link">Kelola Admin</a>
+    {% endif %}
+    <a href="/logout" class="nav-link btn-logout">Logout</a>
   </div>
 </nav>
 
@@ -54,11 +54,34 @@
   
   <!-- METRIC WIDGETS -->
   <div class="metrics-grid">
+    {% if session.get('role') == 'nasabah' %}
+    <div class="metric-card">
+      <div class="metric-icon" style="color: var(--brand-teal); background: #f0fdf4;">📊</div>
+      <div class="metric-data">
+        <div class="metric-value">{{ total_estimasi_saya }}</div>
+        <div class="metric-label">Total Estimasi Saya</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon" style="color: var(--accent-gold); background: #fffbeb;">💵</div>
+      <div class="metric-data">
+        <div class="metric-value">Rp {{ "{:,.0f}".format(max_estimasi_saya).replace(',', '.') }}</div>
+        <div class="metric-label">Estimasi Tertinggi Saya</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon" style="color: #3b82f6; background: #eff6ff;">👤</div>
+      <div class="metric-data">
+        <div class="metric-value">{{ session.get('username') }}</div>
+        <div class="metric-label">Logged as (NASABAH)</div>
+      </div>
+    </div>
+    {% else %}
     <div class="metric-card">
       <div class="metric-icon" style="color: var(--brand-teal); background: #f0fdf4;">📊</div>
       <div class="metric-data">
         <div class="metric-value">{{ histories|length }}</div>
-        <div class="metric-label">Total Transaksi Estimasi</div>
+        <div class="metric-label">Total Transaksi Estimasi Toko</div>
       </div>
     </div>
     <div class="metric-card">
@@ -75,6 +98,7 @@
         <div class="metric-label">Logged as ({{ session.get('role', 'admin')|upper }})</div>
       </div>
     </div>
+    {% endif %}
   </div>
 
   <div class="db-grid">
@@ -83,7 +107,7 @@
     <div class="card">
       <div class="card-header">
         <span class="card-icon">📈</span>
-        <h2>Grafik Tren Prediksi & Nominal Pencairan</h2>
+        <h2>{% if session.get('role') == 'nasabah' %}Grafik Riwayat Estimasi Saya{% else %}Grafik Tren Prediksi & Nominal Pencairan{% endif %}</h2>
       </div>
       <div style="height: 320px; position: relative;">
         <canvas id="predictionChart"></canvas>
@@ -94,7 +118,7 @@
     <div class="card">
       <div class="card-header">
         <span class="card-icon">🗄️</span>
-        <h2>Riwayat Estimasi (100 Terakhir)</h2>
+        <h2>{% if session.get('role') == 'nasabah' %}Riwayat Estimasi Gadai Saya{% else %}Riwayat Estimasi Toko (100 Terakhir){% endif %}</h2>
       </div>
       <div class="table-responsive">
         <table class="table">

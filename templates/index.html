@@ -31,14 +31,17 @@
     <div class="nav-links" id="navLinks">
       <a href="/" class="nav-link active">Estimasi Gadai</a>
       {% if session.get('logged_in') %}
-      {% if session.get('role') == 'superadmin' %}
-      <a href="/users" class="nav-link">Kelola Admin</a>
-      {% endif %}
-      <a href="/dataset" class="nav-link">Kelola Dataset</a>
-      <a href="/dashboard" class="nav-link">Dashboard</a>
-      <a href="/logout" class="nav-link btn-logout">Logout</a>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        {% if session.get('role') in ['admin', 'superadmin'] %}
+          <a href="/dataset" class="nav-link">Kelola Dataset</a>
+        {% endif %}
+        {% if session.get('role') == 'superadmin' %}
+          <a href="/users" class="nav-link">Kelola Admin</a>
+        {% endif %}
+        <a href="/logout" class="nav-link btn-logout">Logout ({{ session.get('username') }})</a>
       {% else %}
-      <a href="/login" class="nav-link">Login</a>
+        <a href="/login" class="nav-link">Login</a>
+        <a href="/register" class="nav-link">Daftar Nasabah</a>
       {% endif %}
     </div>
   </nav>

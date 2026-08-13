@@ -40,8 +40,8 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id_user = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False) # Hashed password (Jangan 50, hash werkzeug butuh ~162 karakter)
-    role = db.Column(db.Enum('superadmin', 'admin', name='user_roles'), default='admin', nullable=False)
+    password = db.Column(db.String(200), nullable=False) # Hashed password
+    role = db.Column(db.String(20), default='nasabah', nullable=False) # superadmin, admin, nasabah
 
 class SpesifikasiHP(db.Model):
     __tablename__ = 'spesifikasi_hp'
@@ -78,7 +78,6 @@ class DatasetUpdate(db.Model):
     status = db.Column(db.String(50))
     id_user = db.Column(db.Integer, db.ForeignKey('user.id_user')) # Foreign Key ke tabel User
     
-    # Relasi agar mudah memanggil object User dari DatasetUpdate
     uploader = db.relationship('User', backref=db.backref('dataset_updates', lazy=True))
 
 with app.app_context():
@@ -96,8 +95,8 @@ with app.app_context():
 
 @app.before_request
 def require_login():
-    # Rute yang boleh diakses tanpa login (Nasabah & Login)
-    allowed_routes = ['index', 'estimasi', 'login', 'static']
+    # Rute yang boleh diakses tanpa login (Calon Nasabah & Auth)
+    allowed_routes = ['index', 'estimasi', 'get_tipe', 'login', 'register', 'static']
     if request.endpoint not in allowed_routes and not session.get('logged_in'):
         return redirect(url_for('login'))
 
@@ -303,6 +302,41 @@ def get_tipe(merk):
 # ==============================================================
 # ROUTE: Login dan Dashboard
 # ==============================================================
+# ==============================================================
+# ROUTE: Auth (Login, Register, Logout) & Dashboard
+# ==============================================================
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if session.get('logged_in'):
+        return redirect(url_for('dashboard'))
+        
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if not username or not password:
+            flash('Username dan password wajib diisi!', 'danger')
+            return render_template('register.html')
+            
+        if password != confirm_password:
+            flash('Konfirmasi password tidak cocok!', 'danger')
+            return render_template('register.html')
+            
+        if User.query.filter_by(username=username).first():
+            flash('Username sudah terdaftar! Silakan gunakan username lain.', 'danger')
+            return render_template('register.html')
+            
+        hashed_pw = generate_password_hash(password)
+        new_nasabah = User(username=username, password=hashed_pw, role='nasabah')
+        db.session.add(new_nasabah)
+        db.session.commit()
+        
+        flash('Registrasi akun Nasabah berhasil! Silakan login.', 'success')
+        return redirect(url_for('login'))
+        
+    return render_template('register.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -316,7 +350,8 @@ def login():
             session['logged_in'] = True
             session['username'] = user.username
             session['role'] = user.role
-            flash('Login berhasil!', 'success')
+            session['id_user'] = user.id_user
+            flash(f'Selamat datang, {user.username} ({user.role.upper()})!', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Username atau password salah.', 'danger')
@@ -326,7 +361,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)
+    session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('index'))
 
@@ -335,21 +370,40 @@ def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
         
-    histories = HistoryEstimasi.query.order_by(HistoryEstimasi.tanggal.desc()).limit(100).all()
+    role = session.get('role', 'nasabah')
+    username = session.get('username')
+    current_user = User.query.filter_by(username=username).first() if username else None
     
-    # Data grafik: tren prediksi yang sukses
-    sukses_data = HistoryEstimasi.query.filter_by(status='Sukses').order_by(HistoryEstimasi.tanggal.asc()).all()
-    
+    # Jika bukan Admin/Superadmin, maka dianggap Nasabah
+    if role not in ['superadmin', 'admin']:
+        if current_user:
+            histories = HistoryEstimasi.query.filter_by(id_user=current_user.id_user).order_by(HistoryEstimasi.tanggal.desc()).all()
+            sukses_data = HistoryEstimasi.query.filter_by(id_user=current_user.id_user, status='Sukses').order_by(HistoryEstimasi.tanggal.asc()).all()
+        else:
+            histories = []
+            sukses_data = []
+    else:
+        # Admin / Superadmin
+        histories = HistoryEstimasi.query.order_by(HistoryEstimasi.tanggal.desc()).limit(100).all()
+        sukses_data = HistoryEstimasi.query.filter_by(status='Sukses').order_by(HistoryEstimasi.tanggal.asc()).all()
+        
     labels = [h.tanggal.strftime("%Y-%m-%d %H:%M") for h in sukses_data]
     prices = [h.estimasi_harga for h in sukses_data]
     model_names = [f"{h.spesifikasi.merk} {h.spesifikasi.tipe}" for h in sukses_data]
+    
+    # Metrik khusus nasabah
+    total_estimasi_saya = len(histories)
+    valid_prices = [h.estimasi_harga for h in histories if h.estimasi_harga is not None]
+    max_estimasi_saya = max(valid_prices) if valid_prices else 0
     
     return render_template(
         'dashboard.html', 
         histories=histories,
         graph_labels=labels,
         graph_prices=prices,
-        graph_models=model_names
+        graph_models=model_names,
+        total_estimasi_saya=total_estimasi_saya,
+        max_estimasi_saya=max_estimasi_saya
     )
 
 # ==============================================================
@@ -359,6 +413,9 @@ def dashboard():
 def dataset():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
+    if session.get('role') not in ['admin', 'superadmin']:
+        flash('Akses ditolak! Halaman ini khusus untuk Petugas/Admin toko.', 'danger')
+        return redirect(url_for('dashboard'))
         
     updates = DatasetUpdate.query.order_by(DatasetUpdate.tanggal_upload.desc()).all()
     return render_template('dataset.html', updates=updates)

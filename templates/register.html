@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Admin — Enoni Cell</title>
+  <title>Registrasi Nasabah — Enoni Cell</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,22 +17,22 @@
     <span class="nav-icon">📱</span>
     <div>
       <span class="nav-title">Enoni Cell</span>
-      <span class="nav-sub">Portal Masuk Sistem</span>
+      <span class="nav-sub">Portal Nasabah</span>
     </div>
   </div>
   <div class="nav-links">
     <a href="/" class="nav-link">Estimasi Publik</a>
-    <a href="/register" class="nav-link">Daftar Nasabah</a>
+    <a href="/login" class="nav-link">Login</a>
   </div>
 </nav>
 
-<!-- ── LOGIN CARD ──────────────────────────────────────────── -->
-<div class="main-container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-top: 5rem;">
+<!-- ── REGISTER CARD ────────────────────────────────────────── -->
+<div class="main-container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-top: 5rem; padding-bottom: 3rem;">
   <div class="card login-card" style="width: 100%; max-width: 440px; padding: 2.2rem;">
     <div style="text-align: center; margin-bottom: 1.8rem;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
-      <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">Login System</h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">Masuk menggunakan akun Nasabah atau Petugas/Admin.</p>
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📝</div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">Daftar Akun Nasabah</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">Buat akun nasabah untuk menyimpan riwayat estimasi gadai Anda.</p>
     </div>
 
     <!-- Flash Messages -->
@@ -46,28 +46,28 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" action="/login">
+    <form method="POST" action="/register">
       <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" placeholder="Masukkan username" required autocomplete="off">
+        <label for="username">Username Nasabah</label>
+        <input type="text" id="username" name="username" placeholder="Buat username baru" required autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Buat password" required>
       </div>
       <div class="form-group" style="margin-bottom: 1.6rem;">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+        <label for="confirm_password">Konfirmasi Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Ulangi password" required>
       </div>
-      <button type="submit" class="btn-primary" style="width: 100%;">Masuk ke Sistem</button>
+      <button type="submit" class="btn-primary" style="width: 100%;">Daftar Akun Nasabah</button>
     </form>
 
-    <div style="text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: var(--text-muted);">
-      Belum punya akun nasabah? <a href="/register" style="color: var(--brand-teal); font-weight: 600; text-decoration: none;">Daftar di sini</a>
-    </div>
-    
-    <div style="text-align: center; margin-top: 0.5rem; font-size: 0.82rem;">
-      <a href="/" style="color: var(--text-muted); text-decoration: none;">← Kembali ke Estimasi Publik (Tanpa Login)</a>
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+      Sudah punya akun? <a href="/login" style="color: var(--brand-teal); font-weight: 600; text-decoration: none;">Login di sini</a>
     </div>
 
     <div style="text-align: center; margin-top: 1.5rem; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 1rem;">
-      &copy; 2026 Enoni Cell — Multi-user Management System
+      &copy; 2026 Enoni Cell — Sistem Estimasi Gadai Handphone
     </div>
   </div>
 </div>
